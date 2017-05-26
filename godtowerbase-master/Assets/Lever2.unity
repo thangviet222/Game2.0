@@ -1054,7 +1054,7 @@ RectTransform:
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
   m_AnchoredPosition: {x: 0, y: 0}
-  m_SizeDelta: {x: 555, y: 322}
+  m_SizeDelta: {x: 176, y: 341}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1685022960
 MonoBehaviour:
@@ -1076,7 +1076,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Sprite: {fileID: 21300000, guid: c06aa0cc4be0a3547acc18f8861daed7, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 6033aec162ea7e54a8c33311208d2c37, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -1285,9 +1285,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5e29e83488a8e4540806c1c53867fde4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  levelNumber: 1
-  password: kabul
-  nextSceneName: Lever2
+  levelNumber: 2
+  password: solomon
+  nextSceneName: Lever3
   levelText: {fileID: 558741143}
   passwordInput: {fileID: 864005298}
   accessDeniedText: {fileID: 773241983}
