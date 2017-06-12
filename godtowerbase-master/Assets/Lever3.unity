@@ -711,7 +711,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 1618857393}
-        m_MethodName: changeImage
+        m_MethodName: OnHintButtonClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1235,6 +1235,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   image: {fileID: 101339117}
+  hints:
+  - {fileID: 1685022958}
+  - {fileID: 101339115}
+  nexthintButoon: {fileID: 488435096}
 --- !u!4 &1618857394
 Transform:
   m_ObjectHideFlags: 0
