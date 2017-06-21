@@ -4,18 +4,71 @@ using UnityEngine;
 
 public class ObstacleFactory : MonoBehaviour {
     public GameObject obstaclePrefab;
-	// Use this for initialization
-	void Start () {
-        int y = -250;
-        while (y < 568)
+   
+    public float startY;
+    public float platformSpacing;
+    public float platformGapHalfWidth;
+
+  
+
+    private int currentPlatformIndex = 0;
+    private float spawnHalfWidth;
+
+    private List<GameObject> platformPool = new List<GameObject>();
+
+    private void Start()
+    {
+        spawnHalfWidth = Camera.main.aspect * Camera.main.orthographicSize - platformGapHalfWidth;
+
+        CreateNewPlatformIfNeeded();
+    }
+
+    private GameObject GetNewPlatform()
+    {
+        foreach(GameObject platform in platformPool)
         {
-            int x = Random.Range(-250, 250);
-            GameObject newObstacle = Instantiate(obstaclePrefab,
-                new Vector3(x, y, 10),
-                Quaternion.identity);
-            y = y + 200;
+            if (!platform.activeInHierarchy)
+            {    
+                return platform;
+            }
+        }
+
+        GameObject newPlatform = Instantiate(
+            obstaclePrefab,
+            Vector3.zero,
+            Quaternion.identity
+        );
+
+        platformPool.Add(newPlatform);
+
+        return newPlatform;
+    }
+
+    private void CreateNewPlatformIfNeeded()
+    {
+        while (currentPlatformIndex * platformSpacing + startY < Camera.main.transform.position.y + Camera.main.orthographicSize)
+        {
+            GameObject newPlatform = GetNewPlatform();
+            newPlatform.transform.position = new Vector3(Random.Range(-spawnHalfWidth, spawnHalfWidth), currentPlatformIndex * platformSpacing + startY, 0);
+            newPlatform.SetActive(true);
+            
+            currentPlatformIndex++;
         }
     }
-	
-	
+
+    private void Update()
+    {
+        CreateNewPlatformIfNeeded();
+
+        foreach(GameObject platform in platformPool)
+        {
+            if(platform.transform.position.y < Camera.main.transform.position.y - Camera.main.orthographicSize)
+            {
+                platform.SetActive(false);
+            
+
+            }
+        }
+    }
+   
 }
