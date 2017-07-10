@@ -6,91 +6,106 @@ public class Controller2D : MonoBehaviour
 {
     public LayerMask collideMask;
     public float skinWidth;
-    public int numberOfRay;
+    public int numberOfRayHonrizontal=2;
+    public int numberOfRayVertical=2;
 
     private BoxCollider2D bc2D;
     private Bounds colliderBounds;
     private RaycastOrigins raycastOrigins;
-    private float rangeOfTopToBotCollider;
-    private float rangeOfLeftToRightCollider;
-    private bool checkTop=false, checkBot=false, checkLeft=false, checkRight=false;
-    private bool checkisColliding;
+
+    private float honrizontalSpacing;
+    private float verticalSpacing;
     private void Awake()
     {
         bc2D = GetComponent<BoxCollider2D>();
+        numberOfRayHonrizontal = numberOfRayHonrizontal < 2 ? 2 : numberOfRayHonrizontal;
+        numberOfRayVertical = numberOfRayVertical < 2 ? 2 : numberOfRayVertical;
+
     }
-    
+
     public PlayerStatus Move(Vector2 velocity)
     {
-        UpdateColliderBounds();
-
-        velocity = RaycastHorizontal(velocity);
-        velocity = RaycastVertical(velocity);
-        //return velocity;
-
-        return new PlayerStatus
+        PlayerStatus result = new PlayerStatus
         {
             velocity = velocity,
-            isCollidingBottom = checkBot,
-            isCollidingLeft = checkLeft,
-            isCollidingRight = checkRight,
-            isCollidingTop = checkTop
+            isCollidingBottom = false,
+            isCollidingLeft = false,
+            isCollidingRight = false,
+            isCollidingTop = false
         };
+        UpdateColliderBounds();
+        UpdateSpacing();
+        result = RaycastHorizontal(result);
+        result = RaycastVertical(result);
+        //return velocity;
+        return result;
     }
-    private float UpdateVelocity(Vector2 raycast1,Vector2 velocytyWithXY,float velocytyXY)
-    {   RaycastHit2D newHit = Physics2D.Raycast(
-           raycast1,
-           velocytyWithXY,
-           Mathf.Abs(velocytyXY) + skinWidth,
-           collideMask);
-        if (newHit)
-        {
-            velocytyXY = (newHit.distance - skinWidth) * Mathf.Sign(velocytyXY);
-            checkisColliding = !false;
-        }
-        else
-        {
-            checkisColliding = !true;
-        }
-        return velocytyXY;
-    }
-    private Vector2 RaycastHorizontal(Vector2 velocity)
+    private PlayerStatus RaycastHorizontal(PlayerStatus playerStatus)
     {
-        for (int i = 0; i < numberOfRay; i++)
+        Vector2 raycastOriginBottom = playerStatus.velocity.x > 0 ? raycastOrigins.bottomRight : raycastOrigins.bottomLeft;
+
+        for (int i = 0; i < numberOfRayVertical; i++)
         {
-            Vector2 newRaycast = velocity.x > 0 ? raycastOrigins.bottomRight : raycastOrigins.bottomLeft;
-            bool check = newRaycast.Equals(raycastOrigins.bottomRight) ? true : false;
-            newRaycast += new Vector2(0,(rangeOfTopToBotCollider*i)/(numberOfRay-1));
-            velocity.x = UpdateVelocity(newRaycast, velocity.WithY(0), velocity.x);
-            if (check)
+            Vector2 rayOrigin = raycastOriginBottom + Vector2.up * i * verticalSpacing;
+
+            RaycastHit2D hit = Physics2D.Raycast(
+                rayOrigin,
+                playerStatus.velocity.WithY(0),
+                Mathf.Abs(playerStatus.velocity.x) + skinWidth,
+                collideMask
+            );
+
+            if (hit)
             {
-                checkRight = checkisColliding;
-            }else if(!check )
-            {
-                checkLeft = checkisColliding;
+                playerStatus.velocity.x = (hit.distance - skinWidth) * Mathf.Sign(playerStatus.velocity.x);
+
+                if (playerStatus.velocity.x > 0)
+                {
+                    playerStatus.isCollidingRight = true;
+                }
+                else
+                {
+                    playerStatus.isCollidingLeft = true;
+                }
             }
-   
         }
-        return velocity;
+
+        return playerStatus;
     }
 
-    private Vector2 RaycastVertical(Vector2 velocity)
+
+    private PlayerStatus RaycastVertical(PlayerStatus playerStatus)
     {
-        for (int i = 0; i < numberOfRay; i++)
+        Vector2 raycastOriginLeft = playerStatus.velocity.y > 0 ? raycastOrigins.topLeft : raycastOrigins.bottomLeft;
+
+
+        for (int i = 0; i < numberOfRayHonrizontal; i++)
         {
-            Vector2 newRaycast = velocity.y > 0 ? raycastOrigins.topLeft : raycastOrigins.bottomLeft;
-            bool check = newRaycast.Equals(raycastOrigins.topLeft) ? true : false;
-            newRaycast += new Vector2((rangeOfLeftToRightCollider * i) / (numberOfRay - 1), 0);
-            velocity.y = UpdateVelocity(newRaycast, velocity.WithX(0), velocity.y);
-            if(check)
+            Vector2 rayOrigin = raycastOriginLeft + Vector2.right * i * honrizontalSpacing;
+
+            RaycastHit2D hit = Physics2D.Raycast(
+                rayOrigin,
+                playerStatus.velocity.WithX(0),
+                Mathf.Abs(playerStatus.velocity.y) + skinWidth,
+                collideMask
+            );
+
+            if (hit)
             {
-                checkTop = checkisColliding;
-            }else if(!check)
-            {
-                checkBot = checkisColliding;
+                playerStatus.velocity.y = (hit.distance - skinWidth) * Mathf.Sign(playerStatus.velocity.y);
+
+                if (playerStatus.velocity.y > 0)
+                {
+                    playerStatus.isCollidingTop = true;
+                }
+                else
+                {
+                    playerStatus.isCollidingBottom = true;
+                }
             }
         }
-        return velocity;
+
+        return playerStatus;
     }
 
     private void UpdateColliderBounds()
@@ -103,8 +118,6 @@ public class Controller2D : MonoBehaviour
 
     private void UpdateRaycastOrigins()
     {
-        rangeOfTopToBotCollider = (colliderBounds.max.y-colliderBounds.min.y);
-        rangeOfLeftToRightCollider = (colliderBounds.max.x - colliderBounds.min.x);
         raycastOrigins.topLeft = new Vector2(
             colliderBounds.min.x,
             colliderBounds.max.y
@@ -122,6 +135,12 @@ public class Controller2D : MonoBehaviour
             colliderBounds.max.x,
             colliderBounds.min.y
         );
+    }
+    private void UpdateSpacing()
+    {
+        honrizontalSpacing = (raycastOrigins.topRight.x - raycastOrigins.topLeft.x) / (numberOfRayHonrizontal - 1);
+        verticalSpacing = (raycastOrigins.topRight.y - raycastOrigins.bottomRight.y) / (numberOfRayVertical - 1);
+
     }
 }
 
